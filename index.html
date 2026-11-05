@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pixel Night — A Tiny Story</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#090e1c;color:#e8efff;font:14px system-ui;display:grid;place-items:center;padding:20px}main{width:min(960px,100%)}header,.controls{display:flex;align-items:center;gap:12px;justify-content:space-between}h1{font-size:14px;letter-spacing:.18em;color:#b9c9ef}.stage{background:#111a30;border:1px solid #2a3958;border-radius:12px;padding:10px;box-shadow:0 20px 70px #0009}canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;background:#101a31}.controls{margin-top:12px}button{background:#293c63;color:white;border:1px solid #526b9b;border-radius:7px;padding:8px 15px}input{flex:1;accent-color:#b8d2ff}small{color:#8e9cbd}
+</style></head><body><main><header><h1>PIXEL NIGHT / 001</h1><small id="status">READY</small></header><div class="stage"><canvas id="screen" width="320" height="180"></canvas></div><div class="controls"><button id="play">▶ Play</button><input id="seek" type="range" min="0" max="30" step=".01" value="0"><small id="time">00:00 / 00:30</small></div><p><small>30-second pixel-art story · 320 × 180 · drag the timeline to explore.</small></p></main>
+<script>
+(()=>{const c=document.querySelector('#screen'),x=c.getContext('2d'),seek=document.querySelector('#seek'),btn=document.querySelector('#play'),time=document.querySelector('#time'),status=document.querySelector('#status');const W=320,H=180,D=30;let t=0,playing=false,last=0,raf=0;
+const P={sky:'#111a34',night:'#0a1025',blue:'#263b63',pale:'#dce8ff',moon:'#f5e6b8',pink:'#e99bb8',skin:'#efbd9b',hair:'#27314c',coat:'#5876a5',ground:'#192744',gold:'#f1c779'};
+function r(a,b,w,h,col){x.fillStyle=col;x.fillRect(Math.round(a),Math.round(b),w,h)}function txt(s,a,b,size=8,col=P.pale){x.fillStyle=col;x.font=size+'px monospace';x.textAlign='center';x.fillText(s,a,b)}
+function person(a,b,flip=1,walk=0,col=P.coat){x.save();x.translate(a,b);x.scale(flip,1);r(4,0,8,5,P.hair);r(3,5,10,8,P.skin);r(2,4,12,4,P.hair);r(5,9,2,1,'#29334b');r(10,9,2,1,'#29334b');r(4,13,8,3,'#d99583');r(3,16,10,10,col);r(1,17,3,8,P.skin);r(13,17,3,8,P.skin);r(4,26,4,5,'#202b47');r(10,26,4,5,'#202b47');r(2+(walk%2),31,6,2,'#10182b');r(10-(walk%2),31,6,2,'#10182b');x.restore()}
+function bg(sec){r(0,0,W,H,P.sky);for(let i=0;i<45;i++){let sx=(i*73+17)%W,sy=(i*37+9)%105;let tw=(i%3)+1; r(sx,sy,tw,tw,P.pale)}r(246,18,28,28,P.moon);r(252,14,28,28,P.sky);r(0,116,W,64,P.night);for(let i=0;i<10;i++){let bx=i*35-4,bh=24+(i*17%39);r(bx,116-bh,27,bh,'#172542');for(let yy=122-bh;yy<112;yy+=9)for(let xx=bx+5;xx<bx+24;xx+=9)if((xx+yy+i)%3)r(xx,yy,3,4,'#d8a96c')}r(0,151,W,29,P.ground);r(0,151,W,2,'#344668');}
+function draw(sec){x.clearRect(0,0,W,H);bg(sec);let scene=Math.floor(sec/5);let f=Math.floor(sec*8)%2;
+if(scene===0){txt('A QUIET STREET',160,20,8,'#a9badc');person(95,117,1,f);r(170,145,40,2,'#526b91');txt('...waiting for the rain',160,171,7)}
+if(scene===1){r(205,96,52,55,'#344768');r(211,102,40,32,P.gold);r(215,106,32,24,'#f8d99b');person(110,117,1,f);txt('A LIGHT IN THE WINDOW',160,20,8)}
+if(scene===2){for(let i=0;i<18;i++){let rx=(i*29+sec*13)%320; r(rx,(i*17+sec*22)%150,1,7,'#8fb6e8')}person(145,117,1,f);txt('THE RAIN STARTS',160,20,8,'#a9badc')}
+if(scene===3){person(130,117,1,f);person(175,117,-1,f,P.pink);txt('TWO STRANGERS',160,20,8);r(150,135,20,1,'#dce8ff')}
+if(scene===4){person(135,117,1,f);person(170,117,-1,f,P.pink);txt('A SMALL HELLO',160,20,8);r(150,100,20,12,'#263b63');txt('Hi!',160,109,8)}
+if(scene===5){person(135,117,1,f);person(170,117,-1,f,P.pink);for(let i=0;i<5;i++)star(150+i*5,78+(i%2)*7,2,1);txt('THE CITY FEELS WARMER',160,20,8)}
+if(scene===6){person(145,117,1,f);person(185,117,-1,f,P.pink);txt('WALKING HOME',160,20,8);r(0,151,320,2,'#59759a')}
+if(scene===7){person(145,117,1,f);person(185,117,-1,f,P.pink);txt('SOME NIGHTS STAY WITH US',160,20,8);txt('GOOD NIGHT',160,170,9,P.moon)}
+if(sec>28){r(0,0,320,180,'#080d1c');txt('PIXEL NIGHT',160,80,15);txt('A LITTLE STORY',160,99,8,'#a9badc')}
+}
+function fmt(v){let s=Math.floor(v);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function render(){draw(t);seek.value=t;time.textContent=fmt(t)+' / 00:30';status.textContent=playing?'PLAYING':'PAUSED'}
+function loop(now){if(!playing)return;if(last)t=Math.min(D,t+(now-last)/1000);last=now;render();if(t>=D){playing=false;btn.textContent='↻ Replay';status.textContent='FINISHED';return}raf=requestAnimationFrame(loop)}
+btn.onclick=()=>{if(t>=D)t=0;playing=!playing;btn.textContent=playing?'Ⅱ Pause':'▶ Play';last=0;if(playing)raf=requestAnimationFrame(loop);else cancelAnimationFrame(raf);render()};
+seek.oninput=()=>{t=Number(seek.value);render()};render();
+})();</script></body></html>
